@@ -44,53 +44,76 @@ namespace VejrstationAPI.Controllers
         [HttpGet("{date:DateTime}")]
         public async Task<ActionResult<List<Vejrobservation>>> GetVejrobservation(DateTime date)
         {
-            var vejrobservation = await _context.Vejrobservationer
+            var list = await _context.Vejrobservationer
                 .Where(v => v.Tidspunkt.Date == date.Date)
+                .Include(v=>v.Sted)
                 .ToListAsync();
 
-            if (vejrobservation == null)
+            if (list == null)
             {
                 return NotFound();  
             }
 
-            return vejrobservation;
+            foreach (var vejrobservation in list)
+            {
+                vejrobservation.Sted.Vejrobservationer = null;
+                vejrobservation.StedNavn = null;
+            }
+
+            return list;
         }
 
-        // PUT: api/Vejrobservationer/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutVejrobservation(int id, Vejrobservation vejrobservation)
+        // GET: api/Vejrobservationer/last
+        [HttpGet("last")]
+        public async Task<ActionResult<List<Vejrobservation>>> GetSidsteVejrobservationer()
         {
-            if (id != vejrobservation.VejrobservationId)
+            var list = await _context.Vejrobservationer
+                .OrderByDescending(v=>v.Tidspunkt)
+                .Take(3)
+                .Include(v=>v.Sted)
+                .ToListAsync();
+
+            if (list == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(vejrobservation).State = EntityState.Modified;
-
-            try
+            foreach (var vejrobservation in list)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!VejrobservationExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                vejrobservation.Sted.Vejrobservationer = null;
+                vejrobservation.StedNavn = null;
             }
 
-            return NoContent();
+            return list;
         }
 
-        // POST: api/Vejrobservationer
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
+        [HttpGet("{start:DateTime}/{end:DateTime}")]
+        public async Task<ActionResult<List<Vejrobservation>>> GetVejrobservationer(DateTime start, DateTime end)
+        {
+            if (end <= start)
+            {
+                return NotFound();
+            }
+
+            var list = await _context.Vejrobservationer
+                .Where(v=>v.Tidspunkt >= start && v.Tidspunkt <= end)
+                .Include(v => v.Sted)
+                .ToListAsync();
+
+            if (list == null)
+            {
+                return NotFound();
+            }
+
+            foreach (var vejrobservation in list)
+            {
+                vejrobservation.Sted.Vejrobservationer = null;
+                vejrobservation.StedNavn = null;
+            }
+
+            return list;
+        }
+
         [HttpPost]
         public async Task<ActionResult<Vejrobservation>> PostVejrobservation(Vejrobservation vejrobservation)
         {
@@ -110,27 +133,6 @@ namespace VejrstationAPI.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetVejrobservation", new { date = vejrobservation.Tidspunkt }, vejrobservation);
-        }
-
-        // DELETE: api/Vejrobservationer/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Vejrobservation>> DeleteVejrobservation(int id)
-        {
-            var vejrobservation = await _context.Vejrobservationer.FindAsync(id);
-            if (vejrobservation == null)
-            {
-                return NotFound();
-            }
-
-            _context.Vejrobservationer.Remove(vejrobservation);
-            await _context.SaveChangesAsync();
-
-            return vejrobservation;
-        }
-
-        private bool VejrobservationExists(int id)
-        {
-            return _context.Vejrobservationer.Any(e => e.VejrobservationId == id);
         }
     }
 }
