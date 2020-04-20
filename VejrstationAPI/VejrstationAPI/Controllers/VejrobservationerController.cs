@@ -87,6 +87,7 @@ namespace VejrstationAPI.Controllers
             return list;
         }
 
+        // GET: api/Vejrobservationer/2020-01-01T00:00:00/2020-12-12T00:00:00
         [HttpGet("{start:DateTime}/{end:DateTime}")]
         public async Task<ActionResult<List<Vejrobservation>>> GetVejrobservationer(DateTime start, DateTime end)
         {
