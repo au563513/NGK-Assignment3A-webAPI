@@ -34,6 +34,7 @@ namespace VejrstationAPI.Controllers
             foreach (var vejrobservation in list)
             {
                 vejrobservation.Sted.Vejrobservationer = null;
+                vejrobservation.StedNavn = null;
             }
 
             return list;

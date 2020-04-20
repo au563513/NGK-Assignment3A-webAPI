@@ -19,6 +19,7 @@ namespace VejrstationAPI.Models
         [Required]
         public double Longitude { get; set; }
 
+        [JsonIgnore]
         public List<Vejrobservation> Vejrobservationer { get; set; } //Navigational
     }   
 }
