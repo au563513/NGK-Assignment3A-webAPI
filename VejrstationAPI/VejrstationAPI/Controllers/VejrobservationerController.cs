@@ -26,10 +26,20 @@ namespace VejrstationAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Vejrobservation>>> GetVejrobservationer()
         {
-            return await _context.Vejrobservationer.ToListAsync();
+            var list = await _context.Vejrobservationer
+                .AsNoTracking()
+                .Include(v=>v.Sted)
+                .ToListAsync();
+
+            foreach (var vejrobservation in list)
+            {
+                vejrobservation.Sted.Vejrobservationer = null;
+            }
+
+            return list;
         }
 
-        // GET: api/Vejrobservationer/MM-dd-yyyy
+        // GET: api/Vejrobservationer/2020-01-01T00:00:00
         [HttpGet("{date:DateTime}")]
         public async Task<ActionResult<List<Vejrobservation>>> GetVejrobservation(DateTime date)
         {
