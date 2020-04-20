@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using VejrstationAPI.Data;
 using VejrstationAPI.Models;
 
@@ -82,10 +83,22 @@ namespace VejrstationAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Vejrobservation>> PostVejrobservation(Vejrobservation vejrobservation)
         {
+            if (!_context.Steder.Any(s=>s.Navn == vejrobservation.Sted.Navn))
+            {
+                _context.Steder.Add(vejrobservation.Sted);
+                await _context.SaveChangesAsync();
+            }
+
+            if (vejrobservation.StedNavn == null)
+            {
+                vejrobservation.StedNavn = vejrobservation.Sted.Navn;
+            }
+
+            vejrobservation.Sted = null;
             _context.Vejrobservationer.Add(vejrobservation);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetVejrobservation", new { id = vejrobservation.VejrobservationId }, vejrobservation);
+            return CreatedAtAction("GetVejrobservation", new { date = vejrobservation.Tidspunkt }, vejrobservation);
         }
 
         // DELETE: api/Vejrobservationer/5

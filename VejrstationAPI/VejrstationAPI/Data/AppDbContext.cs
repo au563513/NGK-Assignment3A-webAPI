@@ -14,6 +14,11 @@ namespace VejrstationAPI.Data
         public DbSet<Vejrobservation> Vejrobservationer { get; set; }
         public DbSet<Sted> Steder { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.EnableSensitiveDataLogging();
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
