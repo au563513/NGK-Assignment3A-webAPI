@@ -46,6 +46,7 @@ namespace VejrstationAPI.Controllers
         public async Task<ActionResult<List<Vejrobservation>>> GetVejrobservation(DateTime date)
         {
             var list = await _context.Vejrobservationer
+                .AsNoTracking()
                 .Where(v => v.Tidspunkt.Date == date.Date)
                 .Include(v=>v.Sted)
                 .ToListAsync();
@@ -64,11 +65,32 @@ namespace VejrstationAPI.Controllers
             return list;
         }
 
+        // GET: api/Vejrobservationer/5
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Vejrobservation>> GetVejrobservationById(int id)
+        {
+            var vejrobservation = await _context.Vejrobservationer//.AsNoTracking()
+                .Include(v => v.Sted)
+                .Where(v => v.VejrobservationId == id)
+                .FirstAsync();
+            
+            if (vejrobservation == null)
+            {
+                return NotFound();
+            }
+
+            vejrobservation.Sted.Vejrobservationer = null;
+            vejrobservation.StedNavn = null;
+
+            return vejrobservation;
+        }
+
         // GET: api/Vejrobservationer/last
         [HttpGet("last")]
         public async Task<ActionResult<List<Vejrobservation>>> GetSidsteVejrobservationer()
         {
             var list = await _context.Vejrobservationer
+                .AsNoTracking()
                 .OrderByDescending(v=>v.Tidspunkt)
                 .Take(3)
                 .Include(v=>v.Sted)
@@ -88,6 +110,7 @@ namespace VejrstationAPI.Controllers
             return list;
         }
 
+        // GET: api/Vejrobservationer/2020-01-01T00:00:00/2020-12-12T00:00:00
         [HttpGet("{start:DateTime}/{end:DateTime}")]
         public async Task<ActionResult<List<Vejrobservation>>> GetVejrobservationer(DateTime start, DateTime end)
         {
@@ -97,7 +120,9 @@ namespace VejrstationAPI.Controllers
             }
 
             var list = await _context.Vejrobservationer
+                .AsNoTracking()
                 .Where(v=>v.Tidspunkt >= start && v.Tidspunkt <= end)
+                .OrderByDescending(v=>v.Tidspunkt)
                 .Include(v => v.Sted)
                 .ToListAsync();
 
@@ -121,6 +146,7 @@ namespace VejrstationAPI.Controllers
         {
             if (!_context.Steder.Any(s=>s.Navn == vejrobservation.Sted.Navn))
             {
+                vejrobservation.Sted.Vejrobservationer = null;
                 _context.Steder.Add(vejrobservation.Sted);
                 await _context.SaveChangesAsync();
             }
@@ -130,11 +156,12 @@ namespace VejrstationAPI.Controllers
                 vejrobservation.StedNavn = vejrobservation.Sted.Navn;
             }
 
-            vejrobservation.Sted = null;
+            vejrobservation.Sted = null; //Ikke slet virker ikke uden
             _context.Vejrobservationer.Add(vejrobservation);
             await _context.SaveChangesAsync();
+            vejrobservation.Sted = null; //Ikke slet virker ikke uden
 
-            return CreatedAtAction("GetVejrobservation", new { date = vejrobservation.Tidspunkt }, vejrobservation);
+            return CreatedAtAction("GetVejrobservationById",new {id = vejrobservation.VejrobservationId}, vejrobservation);
         }
     }
 }
