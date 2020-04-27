@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,9 +16,9 @@ namespace VejrstationAPI.Controllers
     [ApiController]
     public class VejrobservationerController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly VejrstationAPIContext _context;
 
-        public VejrobservationerController(AppDbContext context)
+        public VejrobservationerController(VejrstationAPIContext context)
         {
             _context = context;
         }
@@ -114,6 +115,7 @@ namespace VejrstationAPI.Controllers
             return list;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Vejrobservation>> PostVejrobservation(Vejrobservation vejrobservation)
         {
