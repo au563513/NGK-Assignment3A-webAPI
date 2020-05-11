@@ -17,26 +17,125 @@ namespace VejrstationAPITest
 {
     public class VejrobservationerControllerTest
     {
+        private DbContextOptions<VejrstationAPIContext> _options;
+        private VejrstationAPIContext _context;
+        private VejrobservationerController _controller;
+
+        public VejrobservationerControllerTest()
+        {
+            _options = new DbContextOptionsBuilder<VejrstationAPIContext>().UseInMemoryDatabase(databaseName: "TestDatabase").Options;
+            _context = new VejrstationAPIContext(_options);
+            _controller = new VejrobservationerController(_context);
+        }
 
         [Fact]
         public async Task GetSidsteVejrobservationer_ReturnsCorrectList()
         {
-            DbContextOptionsBuilder<VejrstationAPIContext> optionsBuilder = new DbContextOptionsBuilder<VejrstationAPIContext>();
-            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=VejrStationData;Trusted_Connection=True;MultipleActiveResultSets=true");
-            
             // Arrange
-            List<Vejrobservation> model;
-            using (var context = new VejrstationAPIContext(optionsBuilder.Options))
+            _context.Vejrobservationer.Add(new Vejrobservation
             {
-                var controller = new VejrobservationerController(context);
+                Tidspunkt = DateTime.Now,
+                Sted = new Sted()
+                {
+                    Navn = "hej1",
+                    Latitude = 22.22,
+                    Longitude = 44.44
+                },
+                Temperatur = 10,
+                Luftfugtighed = 33,
+                Lufttryk = 1134
+            });
 
-                // Act
-                model = controller.GetSidsteVejrobservationer().Result?.Value;
-            }
+            _context.Vejrobservationer.Add(new Vejrobservation
+            {
+                Tidspunkt = DateTime.Now,
+                Sted = new Sted()
+                {
+                    Navn = "hej2",
+                    Latitude = 22.22,
+                    Longitude = 44.44
+                },
+                Temperatur = 10,
+                Luftfugtighed = 33,
+                Lufttryk = 1134
+            });
+
+            _context.Vejrobservationer.Add(new Vejrobservation
+            {
+                Tidspunkt = DateTime.Now,
+                Sted = new Sted()
+                {
+                    Navn = "hej3",
+                    Latitude = 22.22,
+                    Longitude = 44.44
+                },
+                Temperatur = 10,
+                Luftfugtighed = 33,
+                Lufttryk = 1134
+            });
+
+            _context.SaveChanges();
+
+            // Act
+            var model = _controller.GetSidsteVejrobservationer()?.Result.Value;
+            
+            // Assert
+            Assert.Equal(3, model.Count);
+        }
+
+        [Fact]
+        public async Task GetSidsteVejrobservationer_ReturnsCorrectListBySingleDate()
+        {
+            // Arrange
+            _context.Vejrobservationer.Add(new Vejrobservation
+            {
+                Tidspunkt = DateTime.Now,
+                Sted = new Sted()
+                {
+                    Navn = "hej1",
+                    Latitude = 22.22,
+                    Longitude = 44.44
+                },
+                Temperatur = 10,
+                Luftfugtighed = 33,
+                Lufttryk = 1134
+            });
+
+            _context.Vejrobservationer.Add(new Vejrobservation
+            {
+                Tidspunkt = DateTime.Now,
+                Sted = new Sted()
+                {
+                    Navn = "hej2",
+                    Latitude = 22.22,
+                    Longitude = 44.44
+                },
+                Temperatur = 10,
+                Luftfugtighed = 33,
+                Lufttryk = 1134
+            });
+
+            _context.Vejrobservationer.Add(new Vejrobservation
+            {
+                Tidspunkt = DateTime.Now,
+                Sted = new Sted()
+                {
+                    Navn = "hej3",
+                    Latitude = 22.22,
+                    Longitude = 44.44
+                },
+                Temperatur = 10,
+                Luftfugtighed = 33,
+                Lufttryk = 1134
+            });
+
+            _context.SaveChanges();
+
+            // Act
+            var model = _controller.GetVejrobservation(DateTime.Now)?.Result.Value;
 
             // Assert
             Assert.Equal(3, model.Count);
-
         }
     }
 }
