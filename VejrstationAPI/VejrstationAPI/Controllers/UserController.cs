@@ -49,36 +49,11 @@ namespace VejrstationAPI.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(newUser);
             }
+
             foreach (var error in userCreationResult.Errors)
                 ModelState.AddModelError(string.Empty, error.Description);
+            
             return BadRequest(ModelState);
-        }
-
-        [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody]DtoUser dtoUser)
-        {
-            //var user = await _userManager.FindByEmailAsync(email);
-            //if (user == null)
-            //{
-            //    ModelState.AddModelError(string.Empty, "Invalid login");
-            //    return BadRequest(ModelState);
-            //}
-
-            var passwordSignInResult = await _signInManager.PasswordSignInAsync(dtoUser.Email, dtoUser.Password, isPersistent: false, lockoutOnFailure: false);
-            if (passwordSignInResult.Succeeded)
-            {
-                return Ok();
-            }
-
-            ModelState.AddModelError(string.Empty, "Invalid login");
-            return BadRequest(ModelState);
-        }
-
-        [HttpPost("Logout")]
-        public async Task<IActionResult> Logout()
-        {
-            await _signInManager.SignOutAsync();
-            return Ok();
         }
 
         [HttpPost("jwtlogin")]
@@ -90,9 +65,12 @@ namespace VejrstationAPI.Controllers
                 ModelState.AddModelError(string.Empty, "Invalid login");
                 return BadRequest(ModelState);
             }
+            
             var passwordSignInResult = await _signInManager.CheckPasswordSignInAsync(user, dtoUser.Password, false);
+            
             if (passwordSignInResult.Succeeded)
                 return new ObjectResult(GenerateToken(dtoUser.Email));
+            
             return BadRequest("Invalid login");
         }
 
