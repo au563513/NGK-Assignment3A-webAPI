@@ -99,8 +99,8 @@ namespace VejrstationAPI
 
             app.UseRouting();
 
-            app.UseAuthorization();
-            app.UseAuthentication();
+            app.UseAuthentication(); // MEGET VIGTIGT AT DETTE ER FØRST
+            app.UseAuthorization();  // MEGET VIGTIGT AT DETTE KOMMER !BAG EFTER! app.UseAuthentication();!
 
             app.UseEndpoints(endpoints =>
             {
