@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using VejrstationAPI.Data;
+using VejrstationAPI.Hubs;
 using VejrstationAPI.Models;
 
 namespace VejrstationAPI.Controllers
@@ -17,9 +19,11 @@ namespace VejrstationAPI.Controllers
     public class VejrobservationerController : ControllerBase
     {
         private readonly VejrstationAPIContext _context;
+        private readonly IHubContext<VejrHub> _vejrHubContext;
 
-        public VejrobservationerController(VejrstationAPIContext context)
+        public VejrobservationerController(IHubContext<VejrHub> vejrHub, VejrstationAPIContext context)
         {
+            _vejrHubContext = vejrHub;
             _context = context;
         }
 
@@ -161,7 +165,9 @@ namespace VejrstationAPI.Controllers
             await _context.SaveChangesAsync();
             vejrobservation.Sted = null; //Ikke slet virker ikke uden
 
-            return CreatedAtAction("GetVejrobservationById",new {id = vejrobservation.VejrobservationId}, vejrobservation);
+            await _vejrHubContext.Clients.All.SendAsync("updateObservation", vejrobservation.VejrobservationId);
+
+            return CreatedAtAction("GetVejrobservationById", new {id = vejrobservation.VejrobservationId}, vejrobservation);
         }
     }
 }
