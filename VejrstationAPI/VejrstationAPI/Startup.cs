@@ -88,6 +88,7 @@ namespace VejrstationAPI
             {
                 app.UseDeveloperExceptionPage();
             }
+
             app.UseCors(builder =>
                 builder.WithOrigins("http://localhost:44311")
                     .AllowAnyMethod()
@@ -101,6 +102,8 @@ namespace VejrstationAPI
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            Seeder.Seed(app);
 
             app.UseEndpoints(endpoints =>
             {
