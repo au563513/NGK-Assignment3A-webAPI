@@ -16,6 +16,8 @@ namespace VejrstationAPI.Data
         {
         }
 
+
+
         public DbSet<Vejrobservation> Vejrobservationer { get; set; }
         public DbSet<Sted> Steder { get; set; }
         public DbSet<VejrstationAPIUser> VejrstationAPIUsers { get; set; }
