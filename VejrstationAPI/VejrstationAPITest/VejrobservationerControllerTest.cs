@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using VejrstationAPI;
@@ -11,6 +12,7 @@ using VejrstationAPI.Data;
 using VejrstationAPI.Models;
 using Xunit;
 using Microsoft.Extensions.Configuration;
+using VejrstationAPI.Hubs;
 
 
 namespace VejrstationAPITest
@@ -20,12 +22,13 @@ namespace VejrstationAPITest
         private DbContextOptions<VejrstationAPIContext> _options;
         private VejrstationAPIContext _context;
         private VejrobservationerController _controller;
+        private IHubContext<VejrHub> _vejrHub;
 
         public VejrobservationerControllerTest()
         {
             _options = new DbContextOptionsBuilder<VejrstationAPIContext>().UseInMemoryDatabase(databaseName: "TestDatabase").Options;
             _context = new VejrstationAPIContext(_options);
-            _controller = new VejrobservationerController(_context);
+            _controller = new VejrobservationerController(_vejrHub, _context);
         }
 
         [Fact]
