@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using VejrstationAPI.Data;
+using VejrstationAPI.Hubs;
 using VejrstationAPI.Models;
 
 namespace VejrstationAPI
@@ -41,6 +42,8 @@ namespace VejrstationAPI
             services.AddIdentityCore<VejrstationAPIUser>()
                 .AddEntityFrameworkStores<VejrstationAPIContext>()
                 .AddDefaultTokenProviders();
+
+            services.AddSignalR();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -96,6 +99,8 @@ namespace VejrstationAPI
                     .AllowCredentials()
             );
 
+            app.UseStaticFiles();
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -108,6 +113,7 @@ namespace VejrstationAPI
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<VejrHub>("/vejrhub");
             });
         }
     }
