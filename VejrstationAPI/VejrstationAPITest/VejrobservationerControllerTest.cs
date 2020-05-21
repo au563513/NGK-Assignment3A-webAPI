@@ -32,113 +32,226 @@ namespace VejrstationAPITest
         }
 
         [Fact]
-        public async Task GetSidsteVejrobservationer_ReturnsCorrectList()
+        public async Task GetSidsteVejrobservationer_ReturnsLastThreeObvservations()
         {
             // Arrange
-            _context.Vejrobservationer.Add(new Vejrobservation
+            var observation1 = new Vejrobservation
             {
-                Tidspunkt = DateTime.Now,
+                Tidspunkt = new DateTime(2020, 05,21,22,15,0),
                 Sted = new Sted()
                 {
-                    Navn = "hej1",
-                    Latitude = 22.22,
-                    Longitude = 44.44
+                    Navn = "Aarhus N",
+                    Latitude = 56.12,
+                    Longitude = 10.14
                 },
                 Temperatur = 10,
-                Luftfugtighed = 33,
-                Lufttryk = 1134
-            });
+                Luftfugtighed = 20,
+                Lufttryk = 1136
+            };
 
-            _context.Vejrobservationer.Add(new Vejrobservation
+            var observation2 = new Vejrobservation
             {
-                Tidspunkt = DateTime.Now,
+                Tidspunkt = new DateTime(2020, 05, 21, 22, 16, 0),
                 Sted = new Sted()
                 {
-                    Navn = "hej2",
-                    Latitude = 22.22,
-                    Longitude = 44.44
+                    Navn = "Aarhus C",
+                    Latitude = 56.14,
+                    Longitude = 10.17
                 },
-                Temperatur = 10,
-                Luftfugtighed = 33,
-                Lufttryk = 1134
-            });
+                Temperatur = 11,
+                Luftfugtighed = 22,
+                Lufttryk = 1120
+            };
 
-            _context.Vejrobservationer.Add(new Vejrobservation
+            var observation3 = new Vejrobservation
             {
-                Tidspunkt = DateTime.Now,
+                Tidspunkt = new DateTime(2020, 05, 21, 22, 17, 0),
                 Sted = new Sted()
                 {
-                    Navn = "hej3",
-                    Latitude = 22.22,
-                    Longitude = 44.44
+                    Navn = "Aarhus V",
+                    Latitude = 56.17,
+                    Longitude = 10.13
                 },
-                Temperatur = 10,
-                Luftfugtighed = 33,
-                Lufttryk = 1134
-            });
+                Temperatur = 12,
+                Luftfugtighed = 19,
+                Lufttryk = 1130
+            };
+
+            _context.Vejrobservationer.Add(observation1);
+            _context.Vejrobservationer.Add(observation2);
+            _context.Vejrobservationer.Add(observation3);
 
             _context.SaveChanges();
+
+            var obs1 = _controller.GetVejrobservationById(observation1.VejrobservationId)?.Result.Value;
+            var obs2 = _controller.GetVejrobservationById(observation2.VejrobservationId)?.Result.Value;
+            var obs3 = _controller.GetVejrobservationById(observation3.VejrobservationId)?.Result.Value;
 
             // Act
             var model = _controller.GetSidsteVejrobservationer()?.Result.Value;
-            
+
             // Assert
-            Assert.Equal(3, model.Count);
+            Assert.Equal(obs1.VejrobservationId, model[2].VejrobservationId);
+            Assert.Equal(obs2.VejrobservationId, model[1].VejrobservationId);
+            Assert.Equal(obs3.VejrobservationId, model[0].VejrobservationId);
         }
 
         [Fact]
-        public async Task GetSidsteVejrobservationer_ReturnsCorrectListBySingleDate()
+        public async Task GetSidsteVejrobservationer_ReturnsAllObservationsForAGivenDate()
         {
             // Arrange
-            _context.Vejrobservationer.Add(new Vejrobservation
+            var observation1 = new Vejrobservation
             {
-                Tidspunkt = DateTime.Now,
+                Tidspunkt = new DateTime(2020, 05, 21, 22, 15, 0),
                 Sted = new Sted()
                 {
-                    Navn = "hej1",
-                    Latitude = 22.22,
-                    Longitude = 44.44
+                    Navn = "Aarhus N",
+                    Latitude = 56.12,
+                    Longitude = 10.14
                 },
                 Temperatur = 10,
-                Luftfugtighed = 33,
-                Lufttryk = 1134
-            });
+                Luftfugtighed = 20,
+                Lufttryk = 1136
+            };
 
-            _context.Vejrobservationer.Add(new Vejrobservation
+            var observation2 = new Vejrobservation
             {
-                Tidspunkt = DateTime.Now,
+                Tidspunkt = new DateTime(2020, 05, 21, 22, 16, 0),
                 Sted = new Sted()
                 {
-                    Navn = "hej2",
-                    Latitude = 22.22,
-                    Longitude = 44.44
+                    Navn = "Aarhus C",
+                    Latitude = 56.14,
+                    Longitude = 10.17
                 },
-                Temperatur = 10,
-                Luftfugtighed = 33,
-                Lufttryk = 1134
-            });
+                Temperatur = 11,
+                Luftfugtighed = 22,
+                Lufttryk = 1120
+            };
 
-            _context.Vejrobservationer.Add(new Vejrobservation
+            var observation3 = new Vejrobservation
             {
-                Tidspunkt = DateTime.Now,
+                Tidspunkt = new DateTime(2020, 05, 22, 22, 17, 0),
                 Sted = new Sted()
                 {
-                    Navn = "hej3",
-                    Latitude = 22.22,
-                    Longitude = 44.44
+                    Navn = "Aarhus V",
+                    Latitude = 56.17,
+                    Longitude = 10.13
                 },
-                Temperatur = 10,
-                Luftfugtighed = 33,
-                Lufttryk = 1134
-            });
+                Temperatur = 12,
+                Luftfugtighed = 19,
+                Lufttryk = 1130
+            };
+            var observation4 = new Vejrobservation
+            {
+                Tidspunkt = new DateTime(2020, 05, 22, 22, 18, 0),
+                Sted = new Sted()
+                {
+                    Navn = "Aarhus",
+                    Latitude = 56.17,
+                    Longitude = 10.13
+                },
+                Temperatur = 12,
+                Luftfugtighed = 19,
+                Lufttryk = 1130
+            };
+
+            _context.Vejrobservationer.Add(observation1);
+            _context.Vejrobservationer.Add(observation2);
+            _context.Vejrobservationer.Add(observation3);
+            _context.Vejrobservationer.Add(observation4);
 
             _context.SaveChanges();
 
+            var obs1 = _controller.GetVejrobservationById(observation3.VejrobservationId)?.Result.Value;
+            var obs2 = _controller.GetVejrobservationById(observation4.VejrobservationId)?.Result.Value;
+
             // Act
-            var model = _controller.GetVejrobservation(DateTime.Now)?.Result.Value;
+            var model = _controller.GetVejrobservation(new DateTime(2020, 5, 22))?.Result.Value;
 
             // Assert
-            Assert.Equal(3, model.Count);
+            Assert.Equal(obs1.VejrobservationId, model[0].VejrobservationId);
+            Assert.Equal(obs2.VejrobservationId, model[1].VejrobservationId);
+        }
+
+        [Fact]
+        public async Task GetSidsteVejrobservationer_ReturnsAllObservationsForAGivenDateStartAndEnd()
+        {
+            // Arrange
+            var observation1 = new Vejrobservation
+            {
+                Tidspunkt = new DateTime(2020, 05, 21, 22, 15, 0),
+                Sted = new Sted()
+                {
+                    Navn = "Aarhus N",
+                    Latitude = 56.12,
+                    Longitude = 10.14
+                },
+                Temperatur = 10,
+                Luftfugtighed = 20,
+                Lufttryk = 1136
+            };
+
+            var observation2 = new Vejrobservation
+            {
+                Tidspunkt = new DateTime(2020, 05, 21, 22, 16, 0),
+                Sted = new Sted()
+                {
+                    Navn = "Aarhus C",
+                    Latitude = 56.14,
+                    Longitude = 10.17
+                },
+                Temperatur = 11,
+                Luftfugtighed = 22,
+                Lufttryk = 1120
+            };
+
+            var observation3 = new Vejrobservation
+            {
+                Tidspunkt = new DateTime(2020, 05, 21, 22, 17, 0),
+                Sted = new Sted()
+                {
+                    Navn = "Aarhus V",
+                    Latitude = 56.17,
+                    Longitude = 10.13
+                },
+                Temperatur = 12,
+                Luftfugtighed = 19,
+                Lufttryk = 1130
+            };
+            var observation4 = new Vejrobservation
+            {
+                Tidspunkt = new DateTime(2020, 05, 21, 22, 18, 0),
+                Sted = new Sted()
+                {
+                    Navn = "Aarhus",
+                    Latitude = 56.17,
+                    Longitude = 10.13
+                },
+                Temperatur = 12,
+                Luftfugtighed = 19,
+                Lufttryk = 1130
+            };
+
+            _context.Vejrobservationer.Add(observation1);
+            _context.Vejrobservationer.Add(observation2);
+            _context.Vejrobservationer.Add(observation3);
+            _context.Vejrobservationer.Add(observation4);
+
+            _context.SaveChanges();
+
+            var obs1 = _controller.GetVejrobservationById(observation1.VejrobservationId)?.Result.Value;
+            var obs2 = _controller.GetVejrobservationById(observation2.VejrobservationId)?.Result.Value;
+            var obs3 = _controller.GetVejrobservationById(observation3.VejrobservationId)?.Result.Value;
+            var obs4 = _controller.GetVejrobservationById(observation4.VejrobservationId)?.Result.Value;
+
+            // Act
+            var model = _controller.GetVejrobservationer(new DateTime(2020, 5, 20), new DateTime(2020, 5, 22))?.Result.Value;
+
+            // Assert
+            Assert.Equal(obs1.VejrobservationId, model[3].VejrobservationId);
+            Assert.Equal(obs2.VejrobservationId, model[2].VejrobservationId);
+            Assert.Equal(obs3.VejrobservationId, model[1].VejrobservationId);
+            Assert.Equal(obs4.VejrobservationId, model[0].VejrobservationId);
         }
     }
 }
